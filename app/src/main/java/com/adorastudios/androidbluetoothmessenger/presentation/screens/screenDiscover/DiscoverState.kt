@@ -7,4 +7,7 @@ import com.adorastudios.androidbluetoothmessenger.domain.BluetoothDeviceData
 data class DiscoverState(
     val scannedDevices: List<BluetoothDeviceData> = emptyList(),
     val pairedDevices: List<BluetoothDeviceData> = emptyList(),
+    val isConnected: Boolean = false,
+    val isConnecting: Boolean = false,
+    val server: Boolean = false,
 )

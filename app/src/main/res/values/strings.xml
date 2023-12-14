@@ -5,4 +5,10 @@
     <string name="scannedDevices">Available devices</string>
     <string name="startScan">Start scan</string>
     <string name="stopScan">Stop scan</string>
+    <string name="connecting">Connecting…</string>
+    <string name="waitingForServer">Click \"Connect\" on the second device</string>
+    <string name="waitingForClient">Click \"Accept\" on the second device</string>
+    <string name="connect">Connect</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
 </resources>

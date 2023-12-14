@@ -4,7 +4,6 @@ package com.adorastudios.androidbluetoothmessenger.presentation.screens.screenDi
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +26,8 @@ fun DeviceList(
     modifier: Modifier = Modifier,
     pairedDevices: List<BluetoothDeviceData>,
     scannedDevices: List<BluetoothDeviceData>,
+    connect: (BluetoothDeviceData) -> Unit,
+    accept: (BluetoothDeviceData) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -52,9 +53,14 @@ fun DeviceList(
                     .fillMaxWidth()
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .clickable { }
                     .padding(8.dp),
                 deviceData = it,
+                connect = {
+                    connect(it)
+                },
+                accept = {
+                    accept(it)
+                },
             )
         }
         stickyHeader {
@@ -76,9 +82,14 @@ fun DeviceList(
                     .fillMaxWidth()
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .clickable { }
                     .padding(8.dp),
                 deviceData = it,
+                connect = {
+                    connect(it)
+                },
+                accept = {
+                    accept(it)
+                },
             )
         }
     }
