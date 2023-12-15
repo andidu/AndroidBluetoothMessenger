@@ -7,5 +7,6 @@ sealed class DiscoverEvent {
     object StopScan : DiscoverEvent()
     data class ConnectToServer(val data: BluetoothDeviceData) : DiscoverEvent()
     data class ConnectToClient(val data: BluetoothDeviceData) : DiscoverEvent()
+    data class SendText(val text: String) : DiscoverEvent()
     object StopConnection : DiscoverEvent()
 }

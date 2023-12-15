@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,6 +59,7 @@ class DiscoverViewModel @Inject constructor(
                     it.copy(
                         isConnecting = true,
                         server = true,
+                        connectionName = event.data.name,
                     )
                 }
                 connectJob = bluetoothController
@@ -70,6 +72,7 @@ class DiscoverViewModel @Inject constructor(
                     it.copy(
                         isConnecting = true,
                         server = false,
+                        connectionName = event.data.name,
                     )
                 }
                 connectJob = bluetoothController
@@ -83,7 +86,20 @@ class DiscoverViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isConnecting = false,
+                        connectionName = null,
                     )
+                }
+            }
+
+            is DiscoverEvent.SendText -> {
+                viewModelScope.launch {
+                    bluetoothController.sendText(event.text)?.let { message ->
+                        _state.update {
+                            it.copy(
+                                messages = it.messages + message,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -97,6 +113,7 @@ class DiscoverViewModel @Inject constructor(
                         it.copy(
                             isConnected = true,
                             isConnecting = false,
+                            messages = emptyList(),
                         )
                     }
                 }
@@ -106,6 +123,15 @@ class DiscoverViewModel @Inject constructor(
                         it.copy(
                             isConnected = false,
                             isConnecting = false,
+                            connectionName = null,
+                        )
+                    }
+                }
+
+                is ConnectionResult.Success -> {
+                    _state.update {
+                        it.copy(
+                            messages = it.messages + result.message,
                         )
                     }
                 }
@@ -117,6 +143,7 @@ class DiscoverViewModel @Inject constructor(
                     it.copy(
                         isConnected = false,
                         isConnecting = false,
+                        connectionName = null,
                     )
                 }
             }

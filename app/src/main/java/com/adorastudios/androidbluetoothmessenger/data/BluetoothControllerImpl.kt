@@ -13,11 +13,14 @@ import com.adorastudios.androidbluetoothmessenger.domain.BluetoothController
 import com.adorastudios.androidbluetoothmessenger.domain.BluetoothDeviceData
 import com.adorastudios.androidbluetoothmessenger.domain.BluetoothDeviceData.Companion.toData
 import com.adorastudios.androidbluetoothmessenger.domain.ConnectionResult
+import com.adorastudios.androidbluetoothmessenger.domain.Message
+import com.adorastudios.androidbluetoothmessenger.domain.MessageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
@@ -53,6 +56,8 @@ class BluetoothControllerImpl(private val context: Context) : BluetoothControlle
             if (deviceData in devices) devices else devices + deviceData
         }
     }
+
+    private var transferService: BluetoothMessageTransferService? = null
 
     @SuppressLint("MissingPermission")
     private val connectionChangeReceiver =
@@ -117,6 +122,12 @@ class BluetoothControllerImpl(private val context: Context) : BluetoothControlle
                         emit(ConnectionResult.Connected)
                         currentClientSocket?.let {
                             currentServerSocket?.close()
+                            val service = BluetoothMessageTransferService(
+                                newClientSocket,
+                                newClientSocket.remoteDevice.name,
+                            )
+                            transferService = service
+                            emitAll(service.listenForIncomingMessages())
                         }
                     }
                 }
@@ -138,6 +149,10 @@ class BluetoothControllerImpl(private val context: Context) : BluetoothControlle
                     try {
                         it.connect()
                         emit(ConnectionResult.Connected)
+
+                        val service = BluetoothMessageTransferService(it, it.remoteDevice.name)
+                        transferService = service
+                        emitAll(service.listenForIncomingMessages())
                     } catch (e: Exception) {
                         it.close()
                         currentClientSocket = null
@@ -154,6 +169,25 @@ class BluetoothControllerImpl(private val context: Context) : BluetoothControlle
         currentServerSocket = null
         currentClientSocket?.close()
         currentClientSocket = null
+    }
+
+    @SuppressLint("MissingPermission")
+    override suspend fun sendText(text: String): Message? {
+        runIfHasConnectPermission {
+            if (transferService == null) {
+                return null
+            }
+
+            val data = MessageData(text = text)
+            transferService?.sendMessage(data)
+
+            return Message(
+                data = data,
+                sender = bluetoothAdapter?.name,
+                isLocal = true,
+            )
+        }
+        return null
     }
 
     override fun release() {

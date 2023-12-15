@@ -2,6 +2,7 @@ package com.adorastudios.androidbluetoothmessenger.presentation.screens.screenDi
 
 import androidx.compose.runtime.Immutable
 import com.adorastudios.androidbluetoothmessenger.domain.BluetoothDeviceData
+import com.adorastudios.androidbluetoothmessenger.domain.Message
 
 @Immutable
 data class DiscoverState(
@@ -9,5 +10,7 @@ data class DiscoverState(
     val pairedDevices: List<BluetoothDeviceData> = emptyList(),
     val isConnected: Boolean = false,
     val isConnecting: Boolean = false,
+    val connectionName: String? = null,
     val server: Boolean = false,
+    val messages: List<Message> = emptyList(),
 )
